@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="finance_tracker_react.client/finance_tracker_react.client.esproj">
+    <Build />
+    <Deploy />
+  </Project>
+  <Project Path="finance_tracker_react.Server/finance_tracker_react.Server.csproj" />
+</Solution>

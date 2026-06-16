@@ -1,0 +1,6 @@
+@finance_tracker_react.Server_HostAddress = http://localhost:5232
+
+GET {{finance_tracker_react.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
