@@ -6,7 +6,7 @@ import { AgCharts } from 'ag-charts-react';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-const ChartExample = ({ transactions }) => {
+const ChartDefault = ({ transactions }) => {
     const totalsByDate = {};
     transactions.forEach(t => {
         const date = t.date;
@@ -18,6 +18,39 @@ const ChartExample = ({ transactions }) => {
         totalsByDate[date] += Number(t.amount);
     });
     const chartData = Object.entries(totalsByDate)
+        .map(([date, amount]) => ({
+            date,
+            amount
+        }));
+    const chartOptions = {
+        data: chartData,
+        series: [
+            {
+                type: 'bar',
+                xKey: 'date',
+                yKey: 'amount'
+            }
+        ]
+    };
+    return (
+        <div style={{ height: 400 }}>
+            <AgCharts options={chartOptions} />
+        </div>
+    );
+};
+
+const ChartType = ({ transactions }) => {
+    const totalsByCode = {};
+    transactions.forEach(t => {
+        const code = t.code;
+
+        if (!totalsByCode[code]) {
+            totalsByCode[code] = 0;
+        }
+
+        totalsByCode[code] += Number(t.amount);
+    });
+    const chartData = Object.entries(totalsByCode)
         .map(([date, amount]) => ({
             date,
             amount
@@ -96,6 +129,7 @@ function App() {
                     code: obj['code'] || '',
                     reference: obj['reference'] || '',
                     amount: Number((obj['amount'] || '0').replace(/[^0-9.-]/g, '')) || 0,
+                    balance: Number((obj['balance'] || '0').replace(/[^0-9.-]/g, '')) || 0,
                 };
             });
 
@@ -127,7 +161,13 @@ function App() {
             <button onClick={graphData}>Graph Data</button>
 
             {showChart && (
-                <ChartExample transactions={transactions} />
+                <ChartDefault transactions={transactions} />
+            )}
+
+            <button onClick={graphData}>Graph Data by Transaction Location</button>
+
+            {showChart && (
+                <ChartType transactions={transactions} />
             )}
 
             <table className="table">
@@ -140,7 +180,9 @@ function App() {
                         <th>Particulars</th>
                         <th>Code</th>
                         <th>Reference</th>
-                        <th style={{ textAlign: 'right' }}>Amount</th>
+                        <th>Amount</th>
+                        <th>Balance</th>
+
                     </tr>
                 </thead>
 
@@ -154,11 +196,8 @@ function App() {
                             <td>{t.particulars}</td>
                             <td>{t.code}</td>
                             <td>{t.reference}</td>
-                            <td style={{ textAlign: 'right' }}>
-                                {Number(t.amount).toLocaleString(undefined, {
-                                    minimumFractionDigits: 2,
-                                })}
-                            </td>
+                            <td>{t.amount}</td>
+                            <td>{t.balance}</td>
                         </tr>
                     ))}
                 </tbody>

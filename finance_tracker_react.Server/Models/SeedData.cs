@@ -31,7 +31,7 @@ public static class seedData
             }
 
             //Import the CSV:
-            string csvFilePath = "C:/Users/chris/Documents/transactions.csv";
+            string csvFilePath = "";
             var stream = File.OpenRead(csvFilePath);
             StreamReader reader = new StreamReader(stream);
             reader.ReadLine();    //Skip the heading

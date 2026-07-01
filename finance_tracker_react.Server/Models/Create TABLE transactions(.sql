@@ -8,4 +8,5 @@ code varchar(20),
 reference varchar(20),
 amount decimal NOT NULL,
 date varchar(MAX) NOT NULL,
+balance decimal NOT NULL,
 );

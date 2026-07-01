@@ -83,7 +83,7 @@ app.MapPost("/transactions/upload", async (transactionsContext db, IFormFile fil
         {
             var line = await reader.ReadLineAsync();
             var cols = line.Split(',');
-            if (cols.Length < 7) continue;
+            if (cols.Length < 10) continue;
 
             string type = cols[0];
             string details = cols[1];
@@ -92,6 +92,7 @@ app.MapPost("/transactions/upload", async (transactionsContext db, IFormFile fil
             string reference = cols[4];
             decimal amount = decimal.Parse(cols[5]);
             var date = cols[6];
+            decimal balance = decimal.Parse(cols[9]);
 
             var newTx = new finance_tracker.Models.transactions
             {
@@ -101,7 +102,8 @@ app.MapPost("/transactions/upload", async (transactionsContext db, IFormFile fil
                 code = code,
                 reference = reference,
                 amount = amount,
-                date = date
+                date = date,
+                balance = balance,
             };
             db.transactions.Add(newTx);
             inserted++;
