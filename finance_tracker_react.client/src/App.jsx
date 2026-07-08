@@ -31,7 +31,9 @@ const ChartDefault = ({ transactions, selectedMonth }) => {
             date: new Date(t.date),
             amount: Number(t.amount)
         }))
+        .filter(d => d.date instanceof Date && !isNaN(d.date.getTime()))
         .sort((a, b) => a.date - b.date);
+
     const chartOptions = {
         data: chartData,
         series: [
@@ -70,10 +72,10 @@ const ChartType = ({ transactions, selectedMonth }) => {
 
     const chartData = filteredTransactions
         .map(t => ({
-            code: new Date(t.code),
+            code: t.code || 'Unknown',
             amount: Number(t.amount)
-        }))
-        .sort((a, b) => a.date - b.date);
+        }));
+
     const chartOptions = {
         data: chartData,
         series: [
@@ -106,23 +108,18 @@ const ChartBalance = ({ transactions, selectedMonth }) => {
             date: new Date(t.date),
             balance: Number(t.balance)
         }))
+        .filter(d => d.date instanceof Date && !isNaN(d.date.getTime()))
         .sort((a, b) => a.date - b.date);
 
     const chartOptions = {
         data: chartData,
-        axes: [
-            {
-                position: "bottom"
-            },
-            {
-                position: "left"
-            }],
         series: [
             {
-                type: "line",
-                xKey: "date",
-                yKey: "balance"
-            }]
+                type: 'line',
+                xKey: 'date',
+                yKey: 'balance'
+            }
+        ]
     };
 
     return (
@@ -248,13 +245,15 @@ function App() {
             <button onClick={graphData}>Graph Data by Transaction Location</button>
 
             {showChart && (
-                <ChartType transactions={transactions} />
+                <ChartType transactions={transactions}
+                    selectedMonth={selectedMonth}/>
             )}
 
             <button onClick={graphData}>Graph Balance over Time</button>
 
             {showChart && (
-                <ChartBalance transactions={transactions} />
+                <ChartBalance transactions={transactions}
+                    selectedMonth={selectedMonth}/>
             )}
 
             <table className="table">
