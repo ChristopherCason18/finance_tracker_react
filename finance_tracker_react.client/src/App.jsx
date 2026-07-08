@@ -6,7 +6,8 @@ import { AgCharts } from 'ag-charts-react';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-const ChartDefault = ({ transactions }) => {
+
+const ChartDefault = ({ transactions, selectedMonth }) => {
     const totalsByDate = {};
     transactions.forEach(t => {
         const date = t.date;
@@ -17,11 +18,20 @@ const ChartDefault = ({ transactions }) => {
 
         totalsByDate[date] += Number(t.amount);
     });
-    const chartData = Object.entries(totalsByDate)
-        .map(([date, amount]) => ({
-            date,
-            amount
-        }));
+    const filteredTransactions = transactions.filter(t => {
+
+        if (selectedMonth === "All")
+            return true;
+
+        return new Date(t.date).getMonth() === Number(selectedMonth);
+    });
+
+    const chartData = filteredTransactions
+        .map(t => ({
+            date: new Date(t.date),
+            amount: Number(t.amount)
+        }))
+        .sort((a, b) => a.date - b.date);
     const chartOptions = {
         data: chartData,
         series: [
@@ -39,7 +49,7 @@ const ChartDefault = ({ transactions }) => {
     );
 };
 
-const ChartType = ({ transactions }) => {
+const ChartType = ({ transactions, selectedMonth }) => {
     const totalsByCode = {};
     transactions.forEach(t => {
         const code = t.code;
@@ -50,17 +60,26 @@ const ChartType = ({ transactions }) => {
 
         totalsByCode[code] += Number(t.amount);
     });
-    const chartData = Object.entries(totalsByCode)
-        .map(([date, amount]) => ({
-            date,
-            amount
-        }));
+    const filteredTransactions = transactions.filter(t => {
+
+        if (selectedMonth === "All")
+            return true;
+
+        return new Date(t.date).getMonth() === Number(selectedMonth);
+    });
+
+    const chartData = filteredTransactions
+        .map(t => ({
+            code: new Date(t.code),
+            amount: Number(t.amount)
+        }))
+        .sort((a, b) => a.date - b.date);
     const chartOptions = {
         data: chartData,
         series: [
             {
                 type: 'bar',
-                xKey: 'date',
+                xKey: 'code',
                 yKey: 'amount'
             }
         ]
@@ -72,6 +91,45 @@ const ChartType = ({ transactions }) => {
     );
 };
 
+const ChartBalance = ({ transactions, selectedMonth }) => {
+
+    const filteredTransactions = transactions.filter(t => {
+
+        if (selectedMonth === "All")
+            return true;
+
+        return new Date(t.date).getMonth() === Number(selectedMonth);
+    });
+
+    const chartData = filteredTransactions
+        .map(t => ({
+            date: new Date(t.date),
+            balance: Number(t.balance)
+        }))
+        .sort((a, b) => a.date - b.date);
+
+    const chartOptions = {
+        data: chartData,
+        axes: [
+            {
+                position: "bottom"
+            },
+            {
+                position: "left"
+            }],
+        series: [
+            {
+                type: "line",
+                xKey: "date",
+                yKey: "balance"
+            }]
+    };
+
+    return (
+        <AgCharts options={chartOptions} />
+    );
+};
+
 function App() {
     const [transactions, setTransactions] = useState([]);
     const [error, setError] = useState(null);
@@ -79,7 +137,7 @@ function App() {
     const [showChart, setShowChart] = useState(false);
 
     const uploaderRef = useRef(null);
-
+    const [selectedMonth, setSelectedMonth] = useState("All");
     function graphData() {
         setShowChart(true);
     }
@@ -158,16 +216,45 @@ function App() {
                 Load Transactions From Uploaded File
             </button>
 
+            <label htmlFor="monthFilter">Month: </label>
+
+            <select
+                id="monthFilter"
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(e.target.value)}
+            >
+                <option value="All">All</option>
+                <option value="0">January</option>
+                <option value="1">February</option>
+                <option value="2">March</option>
+                <option value="3">April</option>
+                <option value="4">May</option>
+                <option value="5">June</option>
+                <option value="6">July</option>
+                <option value="7">August</option>
+                <option value="8">September</option>
+                <option value="9">October</option>
+                <option value="10">November</option>
+                <option value="11">December</option>
+            </select>
+
             <button onClick={graphData}>Graph Data</button>
 
             {showChart && (
-                <ChartDefault transactions={transactions} />
+                <ChartDefault transactions={transactions}
+                    selectedMonth={selectedMonth} />
             )}
 
             <button onClick={graphData}>Graph Data by Transaction Location</button>
 
             {showChart && (
                 <ChartType transactions={transactions} />
+            )}
+
+            <button onClick={graphData}>Graph Balance over Time</button>
+
+            {showChart && (
+                <ChartBalance transactions={transactions} />
             )}
 
             <table className="table">
